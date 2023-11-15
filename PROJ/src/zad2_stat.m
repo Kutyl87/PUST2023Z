@@ -1,4 +1,4 @@
-us = [-2:0.05:2];
+us = [-2:0.1:2];
 y_u = [];
 figure
 hold on
@@ -12,7 +12,7 @@ xlabel('Sterowanie U')
 ylabel('Wyjście')
 matlab2tikz ('zad2_stat_u.tex' , 'showInfo' , false) 
 % 
-zs = [-2:0.05:2];
+zs = [-2:0.1:2];
 y_z = [];
 figure
 hold on
