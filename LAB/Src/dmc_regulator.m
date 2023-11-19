@@ -11,8 +11,8 @@ dmcfunction(yzad, 700, 700, zeros(1, kk), 500, 500, 1, 30, 0, 90);
 
 function [u, y, e] = dmcfunction(yzad, D,D_z, z, N, Nu, lambda, deltaumax, Umin, Umax)
     % Inicjalizacja wektorów
-    s_u = get_s_u(0, 0, 300);
-    s_z = get_s_z(0, 0, 300);
+    s_u = get_s(770);
+    s_z = get_zs(0, 0, 770);
     kk = length(yzad);
     u = zeros(1, kk);
     y = zeros(1, kk);
