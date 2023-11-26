@@ -1,7 +1,18 @@
+sendControls([1], ... send for these elements
+                 [50]);
+
+yzad(1:181)=Ypp;
+yzad(182:551)=38;
+yzad(552:951) = 34;
+yzad(952:kk) = Ypp;
+
+dmcfunction(yzad, 700, 700, zeros(1, kk), 500, 500, 1, 30, 0, 90);
+
+
 function [u, y, e] = dmcfunction(yzad, D,D_z, z, N, Nu, lambda, deltaumax, Umin, Umax)
     % Inicjalizacja wektorów
-    s_u = get_s_u(0, 0, 300);
-    s_z = get_s_z(0, 0, 300);
+    s_u = get_s(770);
+    s_z = get_zs(0, 0, 770);
     kk = length(yzad);
     u = zeros(1, kk);
     y = zeros(1, kk);
@@ -25,11 +36,10 @@ function [u, y, e] = dmcfunction(yzad, D,D_z, z, N, Nu, lambda, deltaumax, Umin,
         end
     end
     for i = 1:N
-        for j = 2:D_z
-            Mp_z(i,j) = s_z(min(i+j-1,D_z)) - s_z(j-1);
+        for j = 1:D_z-1
+            Mp_z(i,j) = s_z(min(i+j,D)) - s_z(j);
         end
     end
-    Mp_z(:, 1) = s_z(1:N);
     % Wyznaczenie K i dobranie parametrów kary
     Gamma = eye(N, N);
     Alpha = eye(Nu, Nu) * lambda;
@@ -41,14 +51,14 @@ function [u, y, e] = dmcfunction(yzad, D,D_z, z, N, Nu, lambda, deltaumax, Umin,
     for k = 12:kk
         dUp = [];
         du_z = [];
-        y(k) = symulacja_obiektu4y_p2(u(k-6), u(k-7), z(k-2), z(k-3), y(k-1), y(k-2));
+        y(k) = readMeasurements(1);
         e(k) = yzad(k) - y(k);
         Yzadk = yzad(k) * ones(N, 1);
         Yk = y(k) * ones(N, 1);
         for i = 1:D-1
             dUp = [dUp; u(max(k-i, 1)) - u(max(k-i-1, 1))];
         end
-        for i = 1:D_z
+        for i = 1:D_z-1
             du_z = [du_z; z(max(k-i, 1)) - z(max(k-i-1, 1))];
         end
         dU = K * (Yzadk - Yk - Mp * dUp - Mp_z*du_z);
@@ -60,6 +70,22 @@ function [u, y, e] = dmcfunction(yzad, D,D_z, z, N, Nu, lambda, deltaumax, Umin,
 
         % Sprawdzenie czy U znajduje się w przedziale, ew. ścięcie
         u(k) = max(min(u(k), Umax), Umin);
+
+        sendControlsToG1AndDisturbance(u(k), z(k));
+        waitForNewIteration();
+
+        refreshdata
+        drawnow
+        hold on;
+        t = linspace(1,kk,kk);
+        stairs(t, y)
+        stairs(t,yzad,'LineWidth',1, 'LineStyle','--');
+        title('Charakterystyki y,y_{zad}'); 
+        xlabel('k - number próbki');
+        ylabel('Wartość')
+        legend("Wartość na wyjściu y", "Wartość zadana y_{zad}")
+        hold off
+        matlab2tikz ('zad5_dmc6.tex' , 'showInfo' , false)
 
         % Wprowadzenie zmian wartości zadanej
     end

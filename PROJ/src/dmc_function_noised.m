@@ -1,4 +1,4 @@
-function [u, y, e] = dmcfunction(yzad, D,D_z, z, N, Nu, lambda, deltaumax, Umin, Umax)
+function [u, y, e, z_noised] = dmc_function_noised(yzad, D,D_z, z, N, Nu, lambda, deltaumax, Umin, Umax)
     % Inicjalizacja wektorów
     s_u = get_s_u(0, 0, 300);
     s_z = get_s_z(0, 0, 300);
@@ -9,6 +9,7 @@ function [u, y, e] = dmcfunction(yzad, D,D_z, z, N, Nu, lambda, deltaumax, Umin,
     M = zeros(N,Nu);
     Mp = zeros(N,D-1);
     Mp_z = zeros(N,D_z-1);
+    wgnoise = white_gaussian_noise(kk, 0, 0.01);
     % Macierz M
     for i = 1:N
         for j = 1:Nu
@@ -25,11 +26,10 @@ function [u, y, e] = dmcfunction(yzad, D,D_z, z, N, Nu, lambda, deltaumax, Umin,
         end
     end
     for i = 1:N
-        for j = 2:D_z
-            Mp_z(i,j) = s_z(min(i+j-1,D_z)) - s_z(j-1);
+        for j = 1:D_z-1
+            Mp_z(i,j) = s_z(min(i+j,D)) - s_z(j);
         end
     end
-    Mp_z(:, 1) = s_z(1:N);
     % Wyznaczenie K i dobranie parametrów kary
     Gamma = eye(N, N);
     Alpha = eye(Nu, Nu) * lambda;
@@ -37,6 +37,7 @@ function [u, y, e] = dmcfunction(yzad, D,D_z, z, N, Nu, lambda, deltaumax, Umin,
 
     % Inicjalizacja wektora du i współczynników równania różnicowego
     du = zeros(1, 12);
+    z_noised = z + wgnoise;
     % Główna pętla regulatora
     for k = 12:kk
         dUp = [];
@@ -48,8 +49,8 @@ function [u, y, e] = dmcfunction(yzad, D,D_z, z, N, Nu, lambda, deltaumax, Umin,
         for i = 1:D-1
             dUp = [dUp; u(max(k-i, 1)) - u(max(k-i-1, 1))];
         end
-        for i = 1:D_z
-            du_z = [du_z; z(max(k-i, 1)) - z(max(k-i-1, 1))];
+        for i = 1:D_z-1
+            du_z = [du_z; z_noised(max(k-i, 1)) - z(max(k-i-1, 1))];
         end
         dU = K * (Yzadk - Yk - Mp * dUp - Mp_z*du_z);
         u(k) = dU(1) + u(k-1);
