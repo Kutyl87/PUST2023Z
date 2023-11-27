@@ -26,8 +26,8 @@ function [u, y, e, z_noised] = dmc_function_noised(yzad, D,D_z, z, N, Nu, lambda
         end
     end
     for i = 1:N
-        for j = 1:D_z-1
-            Mp_z(i,j) = s_z(min(i+j,D)) - s_z(j);
+        for j = 2:D_z
+            Mp_z(i,j) = s_z(min(i+j-1,D_z)) - s_z(j-1);
         end
     end
     % Wyznaczenie K i dobranie parametrów kary
@@ -49,8 +49,8 @@ function [u, y, e, z_noised] = dmc_function_noised(yzad, D,D_z, z, N, Nu, lambda
         for i = 1:D-1
             dUp = [dUp; u(max(k-i, 1)) - u(max(k-i-1, 1))];
         end
-        for i = 1:D_z-1
-            du_z = [du_z; z_noised(max(k-i, 1)) - z(max(k-i-1, 1))];
+        for i = 1:D_z
+            du_z = [du_z; z(max(k-i, 1)) - z(max(k-i-1, 1))];
         end
         dU = K * (Yzadk - Yk - Mp * dUp - Mp_z*du_z);
         u(k) = dU(1) + u(k-1);
