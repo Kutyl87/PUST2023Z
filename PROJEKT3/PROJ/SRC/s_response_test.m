@@ -1,5 +1,5 @@
-Upp_vect = [-0.6, 0.05,0.7];
-u_vect = [-0.4, 0.12, 0.8];
+Upp_vect = [-1, 0.05,0.7];
+u_vect = [-0.8, 0.12, 0.8];
 Ypp_vect = [];
 
 for i=1:length(Upp_vect)

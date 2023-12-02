@@ -1,4 +1,4 @@
-function [u, y, e] = dmcfuzzy(s_u_vals, yzad, D_vals, z, N, Nu, lambdas, f_przyn,h_min, h_max)
+function [u, y, e] = dmcfuzzy(s_u_vals, yzad, D_vals, z, N, Nu, lambdas)
     kk = length(yzad);
     e = zeros(1, kk);
     M_pvals = {};
@@ -27,12 +27,12 @@ function [u, y, e] = dmcfuzzy(s_u_vals, yzad, D_vals, z, N, Nu, lambdas, f_przyn
         K_vals{end+1} = K;
     end
     u = zeros(1, kk);
-    y = ones(1, kk);
+    y = zeros(1, kk);
 
     for k = 2:kk
         dUp = [];
         du_z = [];
-        y(k) =  symulacja_obiektu4y_p3(u(max(1, i-5)), u(max(1, i-6)), y_step(max(1, i-1)), y_step(max(1, i-2)));
+        y(k) =  symulacja_obiektu4y_p3(u(max(1, i-5)), u(max(1, i-6)), y(max(1, i-1)), y(max(1, i-2)));
         e(k) = yzad(k) - y(k);
         Yzadk = yzad(k) * ones(N, 1);
         Yk = y(k) * ones(N, 1);
@@ -50,7 +50,7 @@ function [u, y, e] = dmcfuzzy(s_u_vals, yzad, D_vals, z, N, Nu, lambdas, f_przyn
         end
 
         %rozmycie
-        mu_val = f_przyn(length(D_vals), h2, h_max, h_min);
+        mu_val = trapezoidal_membership_function(u(k-1), 3, [[-2, -1, -0.2, 0]; [-0.2, 0, 0.2, 0.4]; [0.2, 0.4, 1, 2]]);
         u_fuzzy = 0;
         for i = 1:length(D_vals)
             u_fuzzy = u_fuzzy + U_vals(i)*mu_val(i);
