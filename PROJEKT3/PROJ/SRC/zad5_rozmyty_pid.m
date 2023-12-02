@@ -8,11 +8,14 @@ Umax = 1;
 Tp=0.5;
 deltaumax = 0.03;
 
-sim_end = 500;
+sim_end = 1000;
 
 yzad(1:50) = 0;
 yzad(51:300) = -0.15;
-yzad(301:sim_end) = 4;
+yzad(301:450) = 5;
+yzad(451:650) = 0.2;
+yzad(651:800) = -0.1;
+yzad(801:sim_end) = 0.9;
 
 ur = zeros(number_of_regulators, 1);
 y = zeros(sim_end, 1);
@@ -30,7 +33,15 @@ for k=7:sim_end
     for reg=1:number_of_regulators
         ur(reg) = r2(reg)*e(k-2)+r1(reg)*e(k-1)+r0(reg)*e(k)+u(k-1);
     end
+%     Wagi trapezowe
     weights = trapezoidal_membership_function(u(k-1), 3, [[-2, -1, -0.2, 0]; [-0.2, 0, 0.2, 0.4]; [0.2, 0.4, 1, 2]]);
+%     weights = trapezoidal_membership_function(u(k-1), 3, [[-2, -1, -0.25, -0.05]; [-0.25, -0.05, 0.2, 0.4]; [0.2, 0.4, 1, 2]]);
+
+%     Wagi Dzwonowe
+%     weights = bell_membership_function(u(k-1), 3, [[-1.3, 1.1, 10]; [0.1, 0.3, 3];[1.3, 0.9, 7]]);
+    
+%     weights = normalizeed(weights);
+    
     u(k) = weights * ur;
 
     %% Skalowanie wartości u
@@ -47,3 +58,12 @@ figure
 plot(y)
 hold on
 stairs(yzad)
+hold off
+figure
+plot(u)
+
+function norm = normalizeed(weights)
+    for i =1:size(weights, 2)
+        norm(i) = weights(i)/sum(weights);
+    end
+end
