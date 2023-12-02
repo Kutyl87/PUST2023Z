@@ -13,9 +13,9 @@ yzad(801:sim_end) = 0.9;
 D_vals = [120,120,120];
 N = 120;
 Nu = 50;
-lambdas = [1,1,1];
+lambdas = [1,1,6];
 z = [];
-[u,y,e] = dmcfuzzy(s_vect, yzad, D_vals, z, N, Nu, lambdas);
+[u,y,e] = dmcfuzzy(s_vect, yzad, D_vals, z, N, Nu, lambdas, Umin, Umax,deltaumax);
 figure
 hold on
 plot(y)

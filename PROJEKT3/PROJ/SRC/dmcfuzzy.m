@@ -1,4 +1,4 @@
-function [u, y, e] = dmcfuzzy(s_u_vals, yzad, D_vals, z, N, Nu, lambdas)
+function [u, y, e] = dmcfuzzy(s_u_vals, yzad, D_vals, z, N, Nu, lambdas, Umin, Umax, deltaumax)
     kk = length(yzad);
     e = zeros(1, kk);
     M_pvals = {};
@@ -30,9 +30,7 @@ function [u, y, e] = dmcfuzzy(s_u_vals, yzad, D_vals, z, N, Nu, lambdas)
     y = zeros(1, kk);
 
     for k = 2:kk
-        dUp = [];
-        du_z = [];
-        y(k) =  symulacja_obiektu4y_p3(u(max(1, i-5)), u(max(1, i-6)), y(max(1, i-1)), y(max(1, i-2)));
+        y(k) =  symulacja_obiektu4y_p3(u(max(1, k-5)), u(max(1, k-6)), y(max(1, k-1)), y(max(1, k-2)));
         e(k) = yzad(k) - y(k);
         Yzadk = yzad(k) * ones(N, 1);
         Yk = y(k) * ones(N, 1);
@@ -56,6 +54,13 @@ function [u, y, e] = dmcfuzzy(s_u_vals, yzad, D_vals, z, N, Nu, lambdas)
             u_fuzzy = u_fuzzy + U_vals(i)*mu_val(i);
         end
         u(k) = u_fuzzy;
+            %% Skalowanie wartości u
+    % Sprawdzenie czy skok znajduje się w przedziale
+        deltau = u(k) - u(k-1);
+        u(k) = u(k-1) + min(abs(deltau), abs(deltaumax)) * sign(deltau);
+    
+    % Sprawdzenie czy U znajduje się w przedziale, ew. ścięcie
+        u(k) = max(min(u(k),Umax),Umin);
     end
    
 end
