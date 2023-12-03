@@ -1,25 +1,31 @@
+D = 65;
+N= 10;
+Nu  = 2;
 Umin= -1;
 Umax = 1;
 deltaumax = 0.03;
-load s_responses.mat
-sim_end = 1000;
-
-yzad(1:50) = 0;
-yzad(51:300) = -0.15;
-yzad(301:450) = 5;
-yzad(451:650) = 0.2;
-yzad(651:800) = -0.1;
-yzad(801:sim_end) = 0.9;
-D_vals = [120,120,120];
-N = 120;
-Nu = 50;
-lambdas = [1,1,6];
-z = [];
-[u,y,e] = dmcfuzzy(s_vect, yzad, D_vals, z, N, Nu, lambdas, Umin, Umax,deltaumax);
+% Pierwszy regulator DMC
+% Yzad(1:200) = -0.21;
+% Yzad(201:400) = -0.17;
+% Drugi regulator DMc
+% Yzad(1:200) = 0;
+% Yzad(201:400) = 0.5;
+% Trzeci regulator DMc
+Yzad(1:200) = 3.5;
+Yzad(201:400) = 4.5;
+lambda = 1;
+[u, y, e] = dmcfunction(s_vect(3,:),Yzad, D, N, Nu, lambda, deltaumax, Umin, Umax);
 figure
 hold on
 plot(y)
-plot(yzad)
+plot(Yzad)
 hold off
 figure
 plot(u)
+%Y_tested = [];Lambdas = [];N_tested = [];Nu_tested = [];D_tested=[];e_tested =[]
+Lambdas = [Lambdas; lambda];
+Y_tested = [Y_tested;y];
+D_tested = [D_tested;D];
+N_tested = [N_tested;N];
+Nu_tested = [Nu_tested;Nu];
+e_tested = [e_tested;sum(e).^2]

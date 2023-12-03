@@ -13,3 +13,15 @@ save("s_responses.mat","s_vect" )
 %     D_v = [D_v;D];
 % end
 % D_v
+probe_number_step = size(s_vect);
+for i=1:probe_number_step(1)
+    figure
+    plot(s_vect(i,:),'DisplayName', string(i)+ " model lokalny",LineWidth=1,Color='red')
+    legend('location', 'southeast');
+    xlim([0,100])
+    title("Odpowiedź skokowa")
+    xlabel("Numer próbki - k")
+    ylabel("Wartość na wyjściu układu")
+    filename = "Odp_skok_" +string(i) +".tex";
+    matlab2tikz(char(filename), 'showInfo' , false);
+end
