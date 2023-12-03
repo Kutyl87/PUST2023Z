@@ -1,3 +1,9 @@
+trapezoidal_membership_function(0.5, 3, [[-2, 0, 40, 44.5]; [40, 44.5, 44.5, 48]; [44.5, 48, 80, 90]])
+figure
+weights = [];
+x = [30:0.5:55];
+for i=1:size(x, 2)
+    weights(i, :) = trapezoidal_membership_function(x(i), 3, [[-2, 0, 40, 44.5]; [40, 44.5, 44.5, 47.5]; [44.5, 47.5, 80, 90]]);
+end
 
-
-bell_membership_function(1, 3, [[-1.3, 1.1, 10]; [0.1, 0.3, 3];[1.3, 0.9, 7]]);
+plot(x, weights)

@@ -3,10 +3,10 @@ Kp = [1.5, 0.23, 0.06];
 Ti = [0.9, 2.4, 3];
 Td = [1, 0.7, 0.1];
 
-Umin= -1;
-Umax = 1;
+Umin= 0;
+Umax = 90;
 Tp=0.5;
-deltaumax = 0.03;
+deltaumax = 30;
 
 sim_end = 1000;
 
