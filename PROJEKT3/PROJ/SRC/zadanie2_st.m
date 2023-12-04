@@ -2,7 +2,7 @@ sim_end = 500;
 possible_u = -1:0.01:1;
 stat_y = [];
 for i= 1:size(possible_u, 2)
-    y_step = step_simulation(possible_u(i), sim_end);
+    y_step = step_simulation(0, 0, possible_u(i), sim_end);
     stat_y(i) = y_step(end);
 end
 
