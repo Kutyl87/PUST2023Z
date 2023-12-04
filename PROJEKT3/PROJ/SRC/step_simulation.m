@@ -1,6 +1,4 @@
-function y_step = step_simulation(u, sim_end)
-    Ypp = 0;
-    Upp = 0;
+function y_step = step_simulation(Upp, Ypp, u, sim_end)
     y_step = ones(1, sim_end+1)*Ypp;
     u = ones(1, sim_end+1)*u;
     u(1) = Upp;
