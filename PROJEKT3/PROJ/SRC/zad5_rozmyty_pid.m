@@ -1,7 +1,7 @@
 number_of_regulators = 3;
-Kp = [1.5, 0.23, 0.06];
-Ti = [0.9, 2.4, 3];
-Td = [1, 0.7, 0.1];
+Kp = [1.25, 0.23, 0.065];
+Ti = [0.7, 2.4, 3.2];
+Td = [1.2, 0.8, 0.1];
 
 Umin= -1;
 Umax = 1;
@@ -34,13 +34,13 @@ for k=7:sim_end
         ur(reg) = r2(reg)*e(k-2)+r1(reg)*e(k-1)+r0(reg)*e(k)+u(k-1);
     end
 %     Wagi trapezowe
-    weights = trapezoidal_membership_function(u(k-1), 3, [[-2, -1, -0.2, 0]; [-0.2, 0, 0.2, 0.4]; [0.2, 0.4, 1, 2]]);
+%     weights = trapezoidal_membership_function(u(k-1), 3, [[-2, -1, -0.2, 0]; [-0.2, 0, 0.2, 0.4]; [0.2, 0.4, 1, 2]]);
 %     weights = trapezoidal_membership_function(u(k-1), 3, [[-2, -1, -0.25, -0.05]; [-0.25, -0.05, 0.2, 0.4]; [0.2, 0.4, 1, 2]]);
 
 %     Wagi Dzwonowe
-%     weights = bell_membership_function(u(k-1), 3, [[-1.3, 1.1, 10]; [0.1, 0.3, 3];[1.3, 0.9, 7]]);
+    weights = bell_membership_function(u(k-1), 3, [[-1.3, 1.1, 10]; [0.1, 0.3, 3];[1.3, 0.9, 7]]);
     
-%     weights = normalizeed(weights);
+    weights = normalizeed(weights);
     
     u(k) = weights * ur;
 
@@ -59,6 +59,11 @@ plot(y)
 hold on
 stairs(yzad)
 hold off
+title('Rozmyty regulator lokalny')
+xlabel('k')
+ylabel('Wyjście')
+legend(["Wyjście", "Wartość zadana"], "Location","northeast")
+matlab2tikz ('zad_7_pid_dzwon.tex' , 'showInfo' , false, 'standalone', true)
 figure
 plot(u)
 
