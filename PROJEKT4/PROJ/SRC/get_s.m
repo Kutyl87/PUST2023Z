@@ -19,7 +19,7 @@ function S = get_s(Upp, Ypp, sim_end)
            
             s_i_1 = Y_step(1, i);
             s_i_2 = Y_step(2, i);
-            s_i_3 = Y_step(2, i);
+            s_i_3 = Y_step(3, i);
             S{i}(1,u) = s_i_1;
             S{i}(2,u) = s_i_2;
             S{i}(3,u) = s_i_3;
