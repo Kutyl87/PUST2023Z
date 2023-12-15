@@ -1,14 +1,17 @@
+clear all;
+
 s = get_s([0,0,0,0], [0,0,0], 200);
-lambdas = [1, 2, 3, 4];
-gammas = [1, 1, 1];
+lambdas = [1, 1, 1, 1];
+gammas = [10, 1, 4];
 
 nu = 4;
 ny = 3;
 
-sim_end = 200;
-yzad = zeros(ny, 200);
-yzad(:,1:50) = zeros(ny, 50);
-yzad(:,51:end) = ones(ny, 150);
+sim_end = 600;
+yzad = zeros(ny, sim_end);
+yzad(1,51:end) = ones(1, sim_end-50);
+yzad(2,201:end) = ones(1, sim_end-200);
+yzad(3,401:end) = ones(1, sim_end-400);
 
 s(1)
 s(2)
@@ -64,7 +67,7 @@ Mp = {};
         end
     end
 %     mat2cell(eye(Nu*nu))
-
+    MT = cell2mat(M)';
     K = mat2cell(inv(MT * cell2mat(GAMMA) * cell2mat(M) + cell2mat(LAMBDA)) * MT * cell2mat(GAMMA), ones(Nu,1)*nu, ones(N,1)*ny);
    Ke = cell2mat(K(1, 1));
    for i=1:size(K, 2)
@@ -97,10 +100,21 @@ Mp = {};
             duk = duk - cell2mat(ku(i))*dUp(:, i);
         end
         U(:,k) = U(:, k-1)+duk;
-    end
-hold on
-for i=1:ny
-    plot(Y(i, :))
-end
+   end
+figure
 
-plot(yzad(1, :))
+sgtitle("Wielowymiarowy analityczny regulator DMC")
+for i=1:ny
+    subplot(2, 2, i)
+    title("Wyjście "+string(i))
+    hold on
+    plot(Y(i, :))
+    stairs(yzad(i, :))
+end
+subplot(2, 2, 4)
+title("Sterowanie")
+for i=1:nu
+    hold on
+    stairs(U(i, :))
+end
+% plot(yzad(1, :))
