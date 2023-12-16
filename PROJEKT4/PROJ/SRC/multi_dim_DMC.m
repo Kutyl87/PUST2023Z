@@ -1,21 +1,21 @@
 clear all;
 
 s = get_s([0,0,0,0], [0,0,0], 200);
-lambdas = [1, 1, 1, 1];
-gammas = [10, 1, 4];
+lambdas = [0.8, 0.3, 0.9, 1];
+gammas = [2.5, 3.5, 5];
 
 nu = 4;
 ny = 3;
 
-sim_end = 600;
+sim_end = 1000;
 yzad = zeros(ny, sim_end);
 yzad(1,51:end) = ones(1, sim_end-50);
+yzad(1,301:end) = ones(1, sim_end-300)*3;
+yzad(1,701:end) = ones(1, sim_end-700)*2;
 yzad(2,201:end) = ones(1, sim_end-200);
+yzad(2,601:end) = ones(1, sim_end-600)*-0.5;
 yzad(3,401:end) = ones(1, sim_end-400);
-
-s(1)
-s(2)
-cellfun(@minus,s(2),s(1),'Un',0)
+yzad(3,801:end) = ones(1, sim_end-800)*1.5;
 
 N = 200;
 Nu = 200;
@@ -82,7 +82,7 @@ Mp = {};
    Y = [0;0;0];
    U = [0;0;0;0];
    for k = 2:sim_end
-        dUp = [];
+%         dUp = [];
         [Y(1, k), Y(2, k),Y(3, k)] = symulacja_obiektu4y_p4( ...
                 U(1, (max(1, k-1))), U(1, (max(1, k-2))), U(1, (max(1, k-3))), U(1, (max(1, k-4))), ...
                 U(2, (max(1, k-1))), U(2, (max(1, k-2))), U(2, (max(1, k-3))), U(2, (max(1, k-4))), ...
@@ -92,24 +92,34 @@ Mp = {};
                 Y(2, (max(1,k-1))), Y(2, (max(1, k-2))), Y(2, (max(1, k-3))), Y(2, max(1,k-4)), ...
                 Y(3, (max(1,k-1))), Y(3, (max(1, k-2))), Y(3, (max(1, k-3))), Y(3, max(1,k-4)));
         e(:, k) = yzad(:,k) - Y(:,k);
-        for i = 1:D-1
-            dUp = [dUp, U(:, max(k-i, 1)) - U(:, max(k-i-1, 1))];
-        end
+%         for i = 1:D-1
+%             dUp = [dUp, U(:, max(k-i, 1)) - U(:, max(k-i-1, 1))];
+%         end
         duk = Ke*e(:, k);
         for i=1:D-1
-            duk = duk - cell2mat(ku(i))*dUp(:, i);
+            duk = duk - cell2mat(ku(i))*(U(:, max(k-i, 1)) - U(:, max(k-i-1, 1)));
         end
         U(:,k) = U(:, k-1)+duk;
+        
+%         deltaumax = [0.3, 0.3, 0.3]
+%         deltau = U(k) - U(k-1);
+%         U(k) = U(k-1) + min(abs(deltau), abs(deltaumax)) .* sign(deltau);
+% 
+%         % Sprawdzenie czy U znajduje się w przedziale, ew. ścięcie
+%         U(k) = max(min(U(k), Umax), Umin);
    end
 figure
 
+locations = {'southeast','northeast', 'northeast'};
 sgtitle("Wielowymiarowy analityczny regulator DMC")
 for i=1:ny
     subplot(2, 2, i)
+    ylim([-1, 3.5])
     title("Wyjście "+string(i))
     hold on
     plot(Y(i, :))
     stairs(yzad(i, :))
+    legend(["Wyjście", "Warość zadana"], 'Location', locations(i))
 end
 subplot(2, 2, 4)
 title("Sterowanie")
@@ -117,4 +127,10 @@ for i=1:nu
     hold on
     stairs(U(i, :))
 end
+ylim([-2, 6])
+legend(["U_1", "U_2", "U_3","U_4"],'NumColumns',2, 'FontSize',7, 'Location', 'north')
 % plot(yzad(1, :))
+
+matlab2tikz ('zad_4_dmc_6.tex' , 'showInfo' , false, 'standalone', true)
+
+sum(sum(e.^2))
