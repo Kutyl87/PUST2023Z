@@ -17,8 +17,8 @@ yzad(2,601:end) = ones(1, sim_end-600)*-0.5;
 yzad(3,401:end) = ones(1, sim_end-400);
 yzad(3,801:end) = ones(1, sim_end-800)*1.5;
 
-N = 200;
-Nu = 200;
+N = 150;
+Nu = 100;
 D = 200;
 M = {};
 Mp = {};
