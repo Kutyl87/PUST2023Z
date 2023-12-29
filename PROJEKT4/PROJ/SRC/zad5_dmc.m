@@ -1,54 +1,26 @@
-clear all;
+fmincon_multi_dim_dmc([0.5859    1.4595    0.4318   26.9247   30.1574   16.4349   79.9302])
 
+a = fmincon(@fmincon_multi_dim_dmc, [10, 10, 10, 10, 1, 1, 1], [], [], [], [], [0, 0, 0, 0, 0, 0, 0], [20, 20, 20, 20, 10, 10, 10])
+
+fmincon_multi_dim_dmc(a)
+
+
+function err = fmincon_multi_dim_dmc(ls_gs)
+% ls_gs
 s = get_s([0,0,0,0], [0,0,0], 200);
-% % % fmincon 1
-% % lambdas = [0.2131,    0.5200,   0.1594,    0.4096];
-% % gammas = [9.7692,    5.8026,   25.5504];
-% % 
-% % % fmincon 2
-% % lambdas = [0.9922    1.3952    2.3818    0.0004    ];
-% % gammas = [3.4490    3.2444    2.3825];
-% % 
-% % %fmincon 3
-% % lambdas = [0.3812    0.3972    0.5221    0.0017];
-% % gammas = [1.3483    1.2535    0.8681];
-
-% fmincon 4
-% punkt startowy same 10
-% blad 41.9938
-lambdas = [1.9115    0.0025    6.2544    1.2379];
-gammas = [6.1352    8.3933    8.9402];
-
-%fmincon 5 większe delt_u_max
-% blad 41.5638
-% start zame zera
-% lambdas = [0.3768    0.1468    1.4923    0.0014];
-% gammas = [2.9257    2.6973    3.0956];
-
-%fmincon 5 poprawiony
-% blad 41.5638
-% start zame zera
-lambdas = [0.3768    0.1468    0.9923    0.25];
-gammas = [2.9257    2.6973    3.0956];
-
-% % only ones
-% lambdas = [0.8, 0.3, 0.9, 0.5];
-% gammas = [2.5, 3.5, 5];
+lambdas = ls_gs(1:4);
+gammas = ls_gs(5:7);
 
 nu = 4;
 ny = 3;
 
-max_delta_u = 0.3;
-
-sim_end = 1000;
+sim_end = 220;
 yzad = zeros(ny, sim_end);
 yzad(1,51:end) = ones(1, sim_end-50);
-yzad(1,301:end) = ones(1, sim_end-300)*3;
-yzad(1,701:end) = ones(1, sim_end-700)*2;
-yzad(2,201:end) = ones(1, sim_end-200);
-yzad(2,601:end) = ones(1, sim_end-600)*-0.5;
-yzad(3,401:end) = ones(1, sim_end-400);
-yzad(3,801:end) = ones(1, sim_end-800)*1.5;
+yzad(2,101:end) = ones(1, sim_end-100);
+yzad(3,181:end) = ones(1, sim_end-180);
+
+max_delta_u = 0.3;
 
 N = 50;
 Nu = 25;
@@ -101,8 +73,7 @@ Mp = {};
     end
 %     mat2cell(eye(Nu*nu))
     MT = cell2mat(M)';
-    K = mat2cell(inv(MT * cell2mat(GAMMA) * cell2mat(M) + cell2mat(LAMBDA)) ...
-        * MT * cell2mat(GAMMA), ones(Nu,1)*nu, ones(N,1)*ny);
+    K = mat2cell(inv(MT * cell2mat(GAMMA) * cell2mat(M) + cell2mat(LAMBDA)) * MT * cell2mat(GAMMA), ones(Nu,1)*nu, ones(N,1)*ny);
    Ke = cell2mat(K(1, 1));
    for i=1:size(K, 2)
         Ke = Ke + cell2mat(K(1, i));
@@ -138,7 +109,6 @@ Mp = {};
                 duk(i) = max_delta_u * sign(duk(i));
             end
         end
-
         U(:,k) = U(:, k-1)+duk;
         
 %         deltaumax = [0.3, 0.3, 0.3]
@@ -148,29 +118,5 @@ Mp = {};
 %         % Sprawdzenie czy U znajduje się w przedziale, ew. ścięcie
 %         U(k) = max(min(U(k), Umax), Umin);
    end
-figure
-
-locations = {'southeast','northeast', 'northeast'};
-sgtitle({sprintf("Wielowymiarowy analityczny regulator DMC"), sprintf("Błąd = %.4f", sum(sum(e.^2)))})
-for i=1:ny
-    subplot(2, 2, i)
-    ylim([-1, 3.5])
-    title("Wyjście "+string(i))
-    hold on
-    plot(Y(i, :))
-    stairs(yzad(i, :))
-    legend(["Wyjście", "Warość zadana"], 'Location', locations(i))
+   err = sum(sum(e.^2));
 end
-subplot(2, 2, 4)
-title("Sterowanie")
-for i=1:nu
-    hold on
-    stairs(U(i, :))
-end
-ylim([-2, 6])
-legend(["U_1", "U_2", "U_3","U_4"],'NumColumns',2, 'FontSize',7, 'Location', 'north')
-% plot(yzad(1, :))
-
-% matlab2tikz (sprintf('zad_4_dmc_fmincon_5_popr.tex') , 'showInfo' , false, 'standalone', true)
-
-sum(sum(e.^2))
