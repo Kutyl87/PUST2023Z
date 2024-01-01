@@ -54,7 +54,7 @@ for k = 3:sim_end
     end
     current_i = 1;
 end
-
+ 
 %% Wykresy
 figure
 locations = {'southeast','northeast', 'northeast'};
