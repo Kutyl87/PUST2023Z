@@ -1,6 +1,7 @@
 clear all;
 nu = 4;
 ny = 3;
+
 %% Parametry PID
 Tp = 0.5; % okres próbkowania
 Kp = [1.7, 1.7, 2];
@@ -30,6 +31,7 @@ yzad(3,801:end) = ones(1, sim_end-800)*1.5;
 %% Pętla regulatorów
 pid_to_u = [1,1,1,0]; % lista z trzema 1 i jednym 0. [1,1,0,1] oznacza, że PIDy są podłączone do 1, 2, 4 wejść. Wejście 3 - nieobsłużone
 current_i = 1;
+deltaumax = 0.3;
 Y = zeros(ny, sim_end);
 U = zeros(nu, sim_end);
 e = zeros(ny, sim_end);
@@ -50,6 +52,8 @@ for k = 3:sim_end
                 r0(current_i)*e(current_i, k)+U(i, k-1);
 
             current_i = current_i + 1;
+            deltau = U(i, k) - U(i, k-1);
+            U(k,i) = U(i, k-1) + min(abs(deltau), abs(deltaumax)) * sign(deltau);
         end
     end
     current_i = 1;
@@ -61,7 +65,7 @@ locations = {'southeast','northeast', 'northeast'};
 sgtitle({sprintf("Algorytm PID"), sprintf("Błąd = %.4f", sum(sum(e.^2)))})
 for i=1:ny
     subplot(2, 2, i)
-    ylim([-1, 3.5])
+    % ylim([-1, 3.5])
     title("Wyjście "+string(i))
     hold on
     plot(Y(i, :))
@@ -74,11 +78,7 @@ for i=1:nu
     hold on
     stairs(U(i, :))
 end
-ylim([-2, 6])
+% ylim([-2, 6])
 
 legend(["U_1", "U_2", "U_3","U_4"],'NumColumns',2, 'FontSize',7, 'Location', 'north')
-% plot(yzad(1, :))
-
-% matlab2tikz (sprintf('zad_4_dmc_fmincon_5_popr.tex') , 'showInfo' , false, 'standalone', true)
-
-sum(sum(e.^2))
+% matlab2tikz (sprintf('zad3_PID_przykladowy.tex') , 'showInfo' , false, 'standalone', true)
