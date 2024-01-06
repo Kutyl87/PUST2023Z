@@ -1,9 +1,8 @@
 clear all;
 
 s = get_s([0,0,0,0], [0,0,0], 200);
-lambdas = [0.8, 0.3, 0.9, 1];
-gammas = [2.5, 3.5, 5];
-
+lambdas = [0.80 0.30  0.60 0.50];
+gammas = [2.50    3.50    5];
 nu = 4;
 ny = 3;
 
@@ -16,11 +15,12 @@ yzad(2,201:end) = ones(1, sim_end-200);
 yzad(2,601:end) = ones(1, sim_end-600)*-0.5;
 yzad(3,401:end) = ones(1, sim_end-400);
 yzad(3,801:end) = ones(1, sim_end-800)*1.5;
-N = 150;
-Nu = 100;
+N = 50;
+Nu = 25;
 D = 200;
 M = {};
 Mp = {};
+max_delta_u = 0.3;
     % Macierz M
     for i = 1:N
         for j = 1:Nu
@@ -94,6 +94,11 @@ Mp = {};
         dY = cellfun(@minus,Yzadk,Yk,'Un',0);
         Mp_prod = cell2mat(Mp) * cell2mat(dUp);
         dU = cell2mat(K) * (cell2mat(dY) - Mp_prod);
+        for i = 1:nu
+            if abs(dU(i)) > max_delta_u
+                dU(i) = max_delta_u * sign(dU(i));
+            end
+        end
         U(:,k) = U(:, k-1) + dU(1:nu);
 %         deltaumax = [0.3, 0.3, 0.3]
 %         deltau = U(k) - U(k-1);
@@ -125,6 +130,6 @@ ylim([-2, 6])
 legend(["U_1", "U_2", "U_3","U_4"],'NumColumns',2, 'FontSize',7, 'Location', 'north')
 % plot(yzad(1, :))
 
-matlab2tikz ('zad_4_dmc_6.tex' , 'showInfo' , false, 'standalone', true)
+matlab2tikz ('zad_6_dmc.tex' , 'showInfo' , false, 'standalone', true)
 
 sum(sum(e.^2))
