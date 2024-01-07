@@ -29,7 +29,9 @@ yzad(3,401:end) = ones(1, sim_end-400);
 yzad(3,801:end) = ones(1, sim_end-800)*1.5;
 
 %% Pętla regulatorów
-pid_to_u = [1,1,1,0]; % lista z trzema 1 i jednym 0. [1,1,0,1] oznacza, że PIDy są podłączone do 1, 2, 4 wejść. Wejście 3 - nieobsłużone
+pid_to_u = [1,0,1,1]; % lista z trzema 1 i jednym 0. [1,1,0,1] oznacza, że PIDy są podłączone do 1, 2, 4 wejść. Wejście 3 - nieobsłużone
+pid_to_y = [1,0,2,3]; % lista z 4 elementami od 0 do 4 pokazująca dla jakiego wyjcia musi działać PID. indeks dla liczby 0 musi być taki sam jak dla liczby 0 w pid_to_u. 
+
 current_i = 1;
 deltaumax = 0.3;
 Y = zeros(ny, sim_end);
@@ -48,12 +50,14 @@ for k = 3:sim_end
     e(:, k) = yzad(:,k) - Y(:,k);
     for i = 1:4
         if pid_to_u(i) == 1
-            U(i, k) = r2(current_i)*e(current_i, k-2)+r1(current_i)*e(current_i, k-1)+ ...
-                r0(current_i)*e(current_i, k)+U(i, k-1);
+            output_number = pid_to_y(i);
+            
+            U(i, k) = r2(current_i)*e(output_number, k-2)+r1(current_i)*e(output_number, k-1)+ ...
+                r0(current_i)*e(output_number, k)+U(i, k-1);
 
             current_i = current_i + 1;
             deltau = U(i, k) - U(i, k-1);
-            U(k,i) = U(i, k-1) + min(abs(deltau), abs(deltaumax)) * sign(deltau);
+            U(i,k) = U(i, k-1) + min(abs(deltau), abs(deltaumax)) * sign(deltau);
         end
     end
     current_i = 1;
@@ -70,7 +74,7 @@ for i=1:ny
     hold on
     plot(Y(i, :))
     stairs(yzad(i, :))
-    legend(["Wyjście", "Warość zadana"], 'Location', locations(i))
+    legend(["Wyjście", "Wartość zadana"], 'Location', locations(i))
 end
 subplot(2, 2, 4)
 title("Sterowanie")
